@@ -1,0 +1,165 @@
+<html>
+  <head>
+    <title>React Tables</title>
+    <script src="http://fb.me/react-0.11.2.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
+    <style>
+        body{
+	        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+		    color: #212121;
+        }
+	    table{
+	        border-collapse: collapse;
+            margin-top: 10px;
+	    }
+	    td, th{
+            border: 1px solid #0288d1;
+            padding: 3px 7px 2px 7px;
+	    }
+        th{
+            font-size: 1.1em;
+            text-align: left;
+            padding-top: 5px;
+            padding-bottom: 4px;
+            background-color: #03a9f4;
+            color: #ffffff;
+        }
+	</style>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+	  /** @jsx React.DOM */
+      var d = React.DOM;
+
+	  var tableData = {'data': [
+	      {'key':'uid1', 'name':'Cesar', 'pnr':'123', 'email': 'cesar@uu.se'},
+	      {'key':'uid2', 'name':'Adam', 'pnr':'124', 'email': 'adam@uu.se'},
+	      {'key':'uid3', 'name':'Bertil', 'pnr':'125', 'email': 'bertil@uu.se'}
+      ],
+      'config' : {
+          tableHeader: "My Table...",
+          props: [
+	          {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
+	          {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':true},
+	          {'key':'prop3', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
+	  ]}};
+
+	  //------------------------------------------------------------------------
+      // Utils
+	  //------------------------------------------------------------------------
+
+	  var TDs = function(row, props){
+	          var cells=[];
+	          props.map(function(p, i){
+                  if(p.visible){
+                      cells.push(d.td({key:i}, row[p.prop]));
+                  }
+              });
+              return cells;
+	  };
+
+	  var THs = function(props){
+	          var cells=[];
+	          props.map(function(p, i){
+                  if(p.visible){
+                      cells.push(d.th({key:i}, p.label));
+                  }
+              });
+              return cells;
+	  };
+
+	  var OPTs = function(props){
+	          var opts=[];
+	          props.map(function(p, i){
+                  opts.push(d.option({value:i, key:p.prop }, p.label));
+              });
+              return opts;
+	  };
+
+	  //------------------------------------------------------------------------
+      // Components
+	  //------------------------------------------------------------------------
+	  var ColumnFilter = React.createClass({
+	      getInitialState: function() {
+              return {config: this.props.config};
+          },
+          onSelect : function(event) {
+	          var props = this.state.config.props;
+	          var options = event.target.options;
+	          for(var i = 0; i < options.length; i++){
+			      props[options[i].value].visible = options[i].selected;
+			  }
+              console.debug("onSelect", props);
+	  
+	      },
+	      render: function() {
+              var config = this.state.config;
+	          var callback = this.onSelect;
+              return (
+                  <select multiple={true} onChange={this.onSelect}>
+					{OPTs(config.props)}
+                  </select>
+	      );},
+	  });
+
+	  var Table = React.createClass({
+	      getInitialState: function() {
+              return {data: this.props.data, config: this.props.config};
+          },
+	  
+	      render: function() {
+              var data = this.state.data;
+              var props = this.state.config.props;
+
+              return (
+	              <table>
+                      <thead>
+                          <tr>
+						      {props.map(function(p, i){if(p.visible){return(
+				                  <th key={'header-' + i}>{p.label}</th>
+						      )}})}
+						  </tr>
+                      </thead>
+                      <tbody>
+					      {data.map(function(row, i){return (
+	                          <tr key={'row-' + i}>
+							      {props.map(function(p, j){if(p.visible){return(
+					                  <td key={'cell-' + i + '-' + j}>{row[p.prop]}</td>
+							      )}})}
+                              </tr>
+                           );})}
+                      </tbody>
+                  </table>
+	         );
+	      },
+	  });
+
+	  var TableBox = React.createClass({
+	      getInitialState: function() {
+              return {data: this.props.data, config: this.props.config};
+          },
+
+	      render: function() {
+              var data = this.state.data;
+              var config = this.state.config;
+              return (
+	             <div>
+                     <h1>{config.tableHeader}</h1>
+	                 <ColumnFilter config={config} />
+	                 <Table data={data} config={config} />
+				 </div>
+	          );
+	      }
+	  });
+
+  	  //------------------------------------------------------------------------
+	  // Bootstrap
+	  //------------------------------------------------------------------------
+
+	  React.renderComponent(
+	      TableBox(tableData), document.getElementById('content')
+	  );
+    </script>
+  </body>
+</html>
