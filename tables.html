@@ -32,23 +32,23 @@
 	  /** @jsx React.DOM */
       var d = React.DOM;
 
-	  var tableData = {'data': [
+	  var tableConfig = {
+      'header': 'My Table...',
+	  'data': [
 	      {'key':'uid1', 'name':'Cesar', 'pnr':'123', 'email': 'cesar@uu.se'},
 	      {'key':'uid2', 'name':'Adam', 'pnr':'124', 'email': 'adam@uu.se'},
 	      {'key':'uid3', 'name':'Bertil', 'pnr':'125', 'email': 'bertil@uu.se'}
       ],
-      'config' : {
-          tableHeader: "My Table...",
-          props: [
-	          {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
-	          {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':true},
-	          {'key':'prop3', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
-	  ]}};
+      'columns': [
+          {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
+	      {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':true},
+	      {'key':'prop3', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
+	  ]};
 
 	  //------------------------------------------------------------------------
       // Utils
 	  //------------------------------------------------------------------------
-
+/*
 	  var TDs = function(row, props){
 	          var cells=[];
 	          props.map(function(p, i){
@@ -76,57 +76,61 @@
               });
               return opts;
 	  };
-
+*/
 	  //------------------------------------------------------------------------
       // Components
 	  //------------------------------------------------------------------------
 	  var ColumnFilter = React.createClass({
 	      getInitialState: function() {
-              return {config: this.props.config};
+              return {columns: this.props.columns};
           },
           onSelect : function(event) {
-	          var props = this.state.config.props;
+	          var columns = this.state.columns;
 	          var options = event.target.options;
+
 	          for(var i = 0; i < options.length; i++){
-			      props[options[i].value].visible = options[i].selected;
+			      columns[options[i].value].visible = options[i].selected;
 			  }
-              console.debug("onSelect", props);
-              this.props.onSelect(props);
-	  
+              this.props.onSelect(columns);
 	      },
 	      render: function() {
-              var config = this.state.config;
-	          var callback = this.onSelect;
+              var columns = this.state.columns;
+
+			  var selectedValues = columns.filter(function(c){return c.visible}).map(function(c){return c.prop});
+              console.debug("render", selectedValues);
+
               return (
                   <select multiple={true} onChange={this.onSelect}>
-					{OPTs(config.props)}
+					{columns.map(function(c, i){ return(
+					    <option value={i} key={c.prop}>{c.label}</option>
+                    )})}
                   </select>
-	      );},
+	      )},
 	  });
 
 	  var Table = React.createClass({
 	      getInitialState: function() {
-              return {data: this.props.data, config: this.props.config};
+              return {data: this.props.data, columns: this.props.columns};
           },
 	  
 	      render: function() {
               var data = this.state.data;
-              var props = this.state.config.props;
+              var columns = this.state.columns;
 
               return (
 	              <table>
                       <thead>
                           <tr>
-						      {props.map(function(p, i){if(p.visible){return(
-				                  <th key={'header-' + i}>{p.label}</th>
+						      {columns.map(function(c, i){if(c.visible){return(
+				                  <th key={'header-' + i}>{c.label}</th>
 						      )}})}
 						  </tr>
                       </thead>
                       <tbody>
 					      {data.map(function(row, i){return (
 	                          <tr key={'row-' + i}>
-							      {props.map(function(p, j){if(p.visible){return(
-					                  <td key={'cell-' + i + '-' + j}>{row[p.prop]}</td>
+							      {columns.map(function(c, j){if(c.visible){return(
+					                  <td key={'cell-' + i + '-' + j}>{row[c.prop]}</td>
 							      )}})}
                               </tr>
                            );})}
@@ -138,23 +142,22 @@
 
 	  var TableBox = React.createClass({
 	      getInitialState: function() {
-              return {data: this.props.data, config: this.props.config};
+              return {'data': this.props.data, 'columns': this.props.columns};
           },
 
 	      render: function() {
               var me = this;
-              var state = this.state;
               var data = this.state.data;
-              var config = this.state.config;
+              var columns = this.state.columns;
 
-		      var onConfigChange = function(conf){
-				  me.setState({config:conf});
+		      var onColumnsChange = function(columns){
+				  me.setState({'columns':columns});
 			  }
               return (
 	             <div>
-                     <h1>{config.tableHeader}</h1>
-	                 <ColumnFilter config={config} onSelect={onConfigChange}/>
-	                 <Table data={data} config={config} />
+                     <h1>{this.props.header}</h1>
+	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
+	                 <Table data={data} columns={columns} />
 				 </div>
 	          );
 	      }
@@ -165,7 +168,7 @@
 	  //------------------------------------------------------------------------
 
 	  React.renderComponent(
-	      TableBox(tableData), document.getElementById('content')
+	      TableBox(tableConfig), document.getElementById('content')
 	  );
     </script>
   </body>
