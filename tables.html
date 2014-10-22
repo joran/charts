@@ -142,18 +142,13 @@
           },
 
 	      render: function() {
+              var me = this;
               var state = this.state;
               var data = this.state.data;
               var config = this.state.config;
-			  var setState2 = function(o1, o2){
-				  console.debug("setState2", o1, o2, this);
-				  this.setState(o1,o2);
-			  }
 
 		      var onConfigChange = function(conf){
-				  console.debug("onConfigChange 1 ", config, conf);
-				  setState2({config:conf});
-				  console.debug("onConfigChange 2", state);
+				  me.setState({config:conf});
 			  }
               return (
 	             <div>
