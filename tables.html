@@ -91,6 +91,7 @@
 			      props[options[i].value].visible = options[i].selected;
 			  }
               console.debug("onSelect", props);
+              this.props.onSelect(props);
 	  
 	      },
 	      render: function() {
@@ -141,12 +142,23 @@
           },
 
 	      render: function() {
+              var state = this.state;
               var data = this.state.data;
               var config = this.state.config;
+			  var setState2 = function(o1, o2){
+				  console.debug("setState2", o1, o2, this);
+				  this.setState(o1,o2);
+			  }
+
+		      var onConfigChange = function(conf){
+				  console.debug("onConfigChange 1 ", config, conf);
+				  setState2({config:conf});
+				  console.debug("onConfigChange 2", state);
+			  }
               return (
 	             <div>
                      <h1>{config.tableHeader}</h1>
-	                 <ColumnFilter config={config} />
+	                 <ColumnFilter config={config} onSelect={onConfigChange}/>
 	                 <Table data={data} config={config} />
 				 </div>
 	          );
