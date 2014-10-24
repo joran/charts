@@ -33,9 +33,10 @@
     <script type="text/jsx">
 	  /** @jsx React.DOM */
       var d = React.DOM;
-
-	  console.log("names",Names.get(2), Names.pnr());
-
+      var users = UsersGenerator.get(25);
+      for(var i = 0; i < users.length; i++){
+	      console.log("names", users[i]);
+	  }
 	  var tableConfig = {
       'header': 'My Table...',
 	  'data': [
