@@ -1,8 +1,10 @@
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>React Tables</title>
     <script src="http://fb.me/react-0.11.2.js"></script>
     <script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
+	<script src="http://localhost:8000/namn.js"></script>
     <style>
         body{
 	        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -32,6 +34,8 @@
 	  /** @jsx React.DOM */
       var d = React.DOM;
 
+	  console.log("names",Names.get(2), Names.pnr());
+
 	  var tableConfig = {
       'header': 'My Table...',
 	  'data': [
@@ -41,7 +45,7 @@
       ],
       'columns': [
           {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
-	      {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':true},
+	      {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':false},
 	      {'key':'prop3', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
 	  ]};
 
@@ -87,11 +91,15 @@
           onSelect : function(event) {
 	          var columns = this.state.columns;
 	          var options = event.target.options;
+              var selOpts = event.target.selectedOptions;
+	          var selectedValues = [];
 
-	          for(var i = 0; i < options.length; i++){
-			      columns[options[i].value].visible = options[i].selected;
-			  }
-              this.props.onSelect(columns);
+	          for(var i = 0; i < selOpts.length; i++){
+			      selectedValues.push(selOpts[i].value);
+              }
+
+	          console.debug("onSelect", selectedValues);
+              this.props.onSelect(selectedValues);
 	      },
 	      render: function() {
               var columns = this.state.columns;
@@ -100,9 +108,9 @@
               console.debug("render", selectedValues);
 
               return (
-                  <select multiple={true} onChange={this.onSelect}>
+                  <select value={selectedValues} multiple={true} onChange={this.onSelect}>
 					{columns.map(function(c, i){ return(
-					    <option value={i} key={c.prop}>{c.label}</option>
+					    <option value={c.prop} key={c.prop}>{c.label}</option>
                     )})}
                   </select>
 	      )},
@@ -146,11 +154,22 @@
           },
 
 	      render: function() {
+              var isSelected = function(col, selectedValues){
+                  for(var i = 0; i < selectedValues.length; i++){
+                      if(col.prop == selectedValues[i]){
+                          return true;
+                      }
+                  }
+                  return false;
+			  };
               var me = this;
               var data = this.state.data;
               var columns = this.state.columns;
 
-		      var onColumnsChange = function(columns){
+		      var onColumnsChange = function(selectedValues){
+				  columns.map(function(c){
+                      c.visible = isSelected(c, selectedValues);
+                  });
 				  me.setState({'columns':columns});
 			  }
               return (
