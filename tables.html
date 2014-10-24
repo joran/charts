@@ -4,7 +4,7 @@
     <title>React Tables</title>
     <script src="http://fb.me/react-0.11.2.js"></script>
     <script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
-	<script src="http://localhost:8000/namn.js"></script>
+	<script src="http://localhost:8000/util.js"></script>
     <style>
         body{
 	        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -33,23 +33,30 @@
     <script type="text/jsx">
 	  /** @jsx React.DOM */
       var d = React.DOM;
-      var users = UsersGenerator.get(25);
-      for(var i = 0; i < users.length; i++){
-	      console.log("names", users[i]);
-	  }
+
 	  var tableConfig = {
       'header': 'My Table...',
-	  'data': [
-	      {'key':'uid1', 'name':'Cesar', 'pnr':'123', 'email': 'cesar@uu.se'},
-	      {'key':'uid2', 'name':'Adam', 'pnr':'124', 'email': 'adam@uu.se'},
-	      {'key':'uid3', 'name':'Bertil', 'pnr':'125', 'email': 'bertil@uu.se'}
-      ],
+	  'data': [],
       'columns': [
           {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
-	      {'key':'prop2', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':false},
-	      {'key':'prop3', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
+	      {'key':'prop2', 'prop': 'uid',   'label': 'Konto', 'sortable': 'true', 'visible':true},
+	      {'key':'prop3', 'prop': 'pnr',   'label': 'Pnr',   'sortable': 'true', 'visible':false},
+	      {'key':'prop4', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
 	  ]};
 
+      var users = UsersGenerator.get(150);
+      for(var i = 0; i < users.length; i++){
+          var user = users[i];
+          var name = user.surname + ", " + user.givenname;
+          var pnr = user.pnr;
+          var email = user.email;
+	      tableConfig.data.push({
+		      name: name,
+              uid: user.uid,
+              pnr:pnr,
+              email:email
+          });
+	  }
 	  //------------------------------------------------------------------------
       // Utils
 	  //------------------------------------------------------------------------
@@ -99,14 +106,11 @@
 			      selectedValues.push(selOpts[i].value);
               }
 
-	          console.debug("onSelect", selectedValues);
               this.props.onSelect(selectedValues);
 	      },
 	      render: function() {
               var columns = this.state.columns;
-
 			  var selectedValues = columns.filter(function(c){return c.visible}).map(function(c){return c.prop});
-              console.debug("render", selectedValues);
 
               return (
                   <select value={selectedValues} multiple={true} onChange={this.onSelect}>
