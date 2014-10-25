@@ -153,6 +153,11 @@
               }
               this.setState({sortBy: selectedProp, direction:direction});
 		  },
+	      handleTRClick : function(event){
+			  var selectedIdx = event.target.parentNode.sectionRowIndex;
+              var row = this.state.data[selectedIdx];
+              console.debug("handleTRClick", row);
+		  },
 	      render: function() {
               var me = this;
               var columns = this.state.columns;
@@ -186,7 +191,7 @@
                       </thead>
                       <tbody>
 					      {data.map(function(row, i){return (
-	                          <tr key={'row-' + i}>
+	                          <tr key={'row-' + i} onClick={me.handleTRClick}>
 							      {columns.map(function(c, j){if(c.visible){return(
 					                  <td key={'cell-' + i + '-' + j}>{row[c.prop]}</td>
 							      )}})}
