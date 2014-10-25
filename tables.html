@@ -2,9 +2,9 @@
   <head>
     <meta charset="UTF-8">
     <title>React Tables</title>
-    <script src="http://fb.me/react-0.11.2.js"></script>
-    <script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
-	<script src="http://localhost:8000/util.js"></script>
+    <script src="lib//react-0.11.2.js"></script>
+    <script src="lib/JSXTransformer-0.11.2.js"></script>
+	<script src="util.js"></script>
     <style>
         body{
 	        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -26,6 +26,12 @@
             background-color: #03a9f4;
             color: #ffffff;
         }
+        th.sort-asc:after{
+		    content: " \25b4";
+        }
+        th.sort-desc:after{
+            content: " \25be";
+        }
 	</style>
   </head>
   <body>
@@ -37,6 +43,7 @@
 	  var tableConfig = {
       'header': 'My Table...',
 	  'data': [],
+      'sortBy': 'name',
       'columns': [
           {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
 	      {'key':'prop2', 'prop': 'uid',   'label': 'Konto', 'sortable': 'true', 'visible':true},
@@ -44,7 +51,7 @@
 	      {'key':'prop4', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
 	  ]};
 
-      var users = UsersGenerator.get(150);
+      var users = UsersGenerator.get(5);
       for(var i = 0; i < users.length; i++){
           var user = users[i];
           var name = user.surname + ", " + user.givenname;
@@ -89,6 +96,7 @@
               return opts;
 	  };
 */
+
 	  //------------------------------------------------------------------------
       // Components
 	  //------------------------------------------------------------------------
@@ -123,19 +131,47 @@
 
 	  var Table = React.createClass({
 	      getInitialState: function() {
-              return {data: this.props.data, columns: this.props.columns};
+              var sortBy = this.props.sortBy || this.props.columns[0].prop;
+              return {data: this.props.data, columns: this.props.columns, sortBy: sortBy, direction:'asc'};
           },
-	  
+	      handleTHClick : function(event){
+              var selectedProp = event.target.dataset.prop;
+			  var direction = this.state.direction
+              if(selectedProp == this.state.sortBy){
+                 direction = (direction == 'asc') ? 'desc':'asc';
+              } else {
+                 direction = 'asc';
+              }
+              this.setState({sortBy: selectedProp, direction:direction});
+		  },
 	      render: function() {
-              var data = this.state.data;
+              var me = this;
               var columns = this.state.columns;
+              var sortBy = this.state.sortBy;
+              var direction = this.state.direction;
 
+              var data = this.state.data.sort(function(a,b){
+                  var aValue = a[sortBy] || "";
+                  var bValue = b[sortBy] || "";
+                  if(direction == 'asc'){
+                      return aValue.localeCompare(bValue);
+                  } else {
+                      return bValue.localeCompare(aValue);
+                  }
+              });
+				  
               return (
 	              <table>
                       <thead>
                           <tr>
-						      {columns.map(function(c, i){if(c.visible){return(
-				                  <th key={'header-' + i}>{c.label}</th>
+						      {columns.map(function(c, i){if(c.visible){
+                                  var className = '';
+                                  if(c.prop == sortBy){
+                                     className = 'sort-'+direction;
+                                  }
+
+                                  return(
+				                      <th className={className} key={'header-' + i} data-prop={c.prop} onClick={me.handleTHClick}>{c.label}</th>
 						      )}})}
 						  </tr>
                       </thead>
@@ -170,18 +206,19 @@
               var me = this;
               var data = this.state.data;
               var columns = this.state.columns;
+			  var sortBy = this.props.sortBy;
 
 		      var onColumnsChange = function(selectedValues){
 				  columns.map(function(c){
                       c.visible = isSelected(c, selectedValues);
                   });
 				  me.setState({'columns':columns});
-			  }
+			  };
               return (
 	             <div>
                      <h1>{this.props.header}</h1>
 	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
-	                 <Table data={data} columns={columns} />
+	                 <Table data={data} columns={columns} sortBy={sortBy}/>
 				 </div>
 	          );
 	      }
