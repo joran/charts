@@ -39,7 +39,10 @@
             background-color: #ffffff;
         }
         tr:hover{
-            background-color: #81d4fa
+            background-color: #81d4fa;
+        }
+        tr.selected{
+            background-color: #4fc3f7;
         }
 	</style>
   </head>
@@ -53,6 +56,7 @@
       'header': 'My Table...',
 	  'data': [],
       'sortBy': 'name',
+      'multipleSelect': true,
       'columns': [
           {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
 	      {'key':'prop2', 'prop': 'uid',   'label': 'Konto', 'sortable': 'true', 'visible':true},
@@ -141,7 +145,13 @@
 	  var Table = React.createClass({
 	      getInitialState: function() {
               var sortBy = this.props.sortBy || this.props.columns[0].prop;
-              return {data: this.props.data, columns: this.props.columns, sortBy: sortBy, direction:'asc'};
+              return {
+				  data: this.props.data,
+				  columns: this.props.columns,
+				  sortBy: sortBy,
+				  direction:'asc',
+                  selectedRows: []
+			 };
           },
 	      handleTHClick : function(event){
               var selectedProp = event.target.dataset.prop;
@@ -154,18 +164,61 @@
               this.setState({sortBy: selectedProp, direction:direction});
 		  },
 	      handleTRClick : function(event){
+              var rows = this.state.data;
+              var selectedRows = this.state.selectedRows;
+
+              var isAlreadySelected = function(row){
+                  return selectedRows.filter(function(alreadySelectedRow){
+			          return alreadySelectedRow == row;
+			      }).length > 0;
+              };
+              
               var node = event.target;
               while(node.tagName != "TR"){
                   node = node.parentNode;
               }
+
 			  var selectedIdx = node.sectionRowIndex;
-              var row = this.state.data[selectedIdx];
+              var row = rows[selectedIdx];
+
+              var isMultipleSelectRange = this.props.multipleSelect && event.shiftKey;
+              var isMultipleSelect = this.props.multipleSelect && event.ctrlKey;
+
+              if (isAlreadySelected(row)) {
+                  // unselect if already selected
+			      selectedRows = selectedRows.filter(function(alreadySelectedRow){
+			          return alreadySelectedRow != row;
+			      });
+			  } else if(isMultipleSelectRange){
+                  if (selectedRows.length > 0) {
+                      // Select all rows between last selected row and previous
+                      // selected row 
+                      var previousSelectedRow = selectedRows.slice(-1).pop();
+                      var prevRowIdx = rows.indexOf(previousSelectedRow);
+
+		              rows.slice(Math.min(selectedIdx, prevRowIdx), Math.max(selectedIdx, prevRowIdx)+1)
+                          .filter(function(r){return !isAlreadySelected(r);})
+                          .forEach(function(r){selectedRows.push(r)});
+                  } else {
+                      // No row has previously been selected 
+                      console.debug("handleTRClick 3");
+                      selectedRows = [row];
+                  }
+              } else if (isMultipleSelect){
+                  selectedRows.push(row);
+			  } else {
+                  selectedRows=[row];
+			  }
+
+              console.debug("handleTRClick", event, event.ctrlKey, selectedRows);
+			  this.setState({'selectedRows': selectedRows});
 		  },
 	      render: function() {
               var me = this;
               var columns = this.state.columns;
               var sortBy = this.state.sortBy;
               var direction = this.state.direction;
+              var selectedRows = this.state.selectedRows;
 
               var data = this.state.data.sort(function(a,b){
                   var aValue = a[sortBy] || "";
@@ -175,8 +228,17 @@
                   } else {
                       return bValue.localeCompare(aValue);
                   }
+              }).map(function(row){
+                  row.isSelected = false;
+                  for(var i = 0; i < selectedRows.length; i++){
+                      if(row == selectedRows[i]){
+                          row.isSelected = true;
+                          break;
+                      }
+                  }
+                  return row;
               });
-				  
+
               return (
 	              <table>
                       <thead>
@@ -193,8 +255,10 @@
 						  </tr>
                       </thead>
                       <tbody>
-					      {data.map(function(row, i){return (
-	                          <tr key={'row-' + i} onClick={me.handleTRClick}>
+					      {data.map(function(row, i){
+                              var className = row.isSelected ? 'selected' : '';
+                              return (
+	                          <tr className={className} key={'row-' + i} onClick={me.handleTRClick}>
 							      {columns.map(function(c, j){if(c.visible){return(
 					                  <td key={'cell-' + i + '-' + j}>{row[c.prop]}</td>
 							      )}})}
@@ -224,6 +288,7 @@
               var data = this.state.data;
               var columns = this.state.columns;
 			  var sortBy = this.props.sortBy;
+              var multipleSelect = this.props.multipleSelect||false;
 
 		      var onColumnsChange = function(selectedValues){
 				  columns.map(function(c){
@@ -235,7 +300,7 @@
 	             <div>
                      <h1>{this.props.header}</h1>
 	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
-	                 <Table data={data} columns={columns} sortBy={sortBy}/>
+	                 <Table data={data} columns={columns} sortBy={sortBy} multipleSelect={multipleSelect}/>
 				 </div>
 	          );
 	      }
