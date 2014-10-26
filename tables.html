@@ -154,9 +154,12 @@
               this.setState({sortBy: selectedProp, direction:direction});
 		  },
 	      handleTRClick : function(event){
-			  var selectedIdx = event.target.parentNode.sectionRowIndex;
+              var node = event.target;
+              while(node.tagName != "TR"){
+                  node = node.parentNode;
+              }
+			  var selectedIdx = node.sectionRowIndex;
               var row = this.state.data[selectedIdx];
-              console.debug("handleTRClick", row);
 		  },
 	      render: function() {
               var me = this;
