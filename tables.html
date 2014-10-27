@@ -57,6 +57,7 @@
 	  'data': [],
       'sortBy': 'name',
       'multipleSelect': true,
+      'onRowsSelect': function(rs){console.info("onRowsSelect callback", rs)},
       'columns': [
           {'key':'prop1', 'prop': 'name',  'label': 'Name',  'sortable': 'true', 'visible':true},
 	      {'key':'prop2', 'prop': 'uid',   'label': 'Konto', 'sortable': 'true', 'visible':true},
@@ -201,6 +202,9 @@
 			  }
 
 			  this.setState({'selectedRows': selectedRows});
+              if(this.props.onRowsSelect){
+                  this.props.onRowsSelect(selectedRows);
+              }
 		  },
 	      render: function() {
               var me = this;
@@ -278,6 +282,7 @@
               var columns = this.state.columns;
 			  var sortBy = this.props.sortBy;
               var multipleSelect = this.props.multipleSelect||false;
+              var onRowsSelect = this.props.onRowsSelect;
 
 		      var onColumnsChange = function(selectedValues){
 				  columns.map(function(c){
@@ -285,11 +290,16 @@
                   });
 				  me.setState({'columns':columns});
 			  };
+
               return (
 	             <div>
                      <h1>{this.props.header}</h1>
 	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
-	                 <Table data={data} columns={columns} sortBy={sortBy} multipleSelect={multipleSelect}/>
+	                 <Table data={data}
+                            columns={columns}
+                            sortBy={sortBy}
+                            onRowsSelect={onRowsSelect}
+                            multipleSelect={multipleSelect} />
 				 </div>
 	          );
 	      }
