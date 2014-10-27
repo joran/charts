@@ -193,7 +193,11 @@
                       selectedRows.push(row);
                   }
 			  } else {
-                  selectedRows=[row];
+                  if (isAlreadySelected(row) && selectedRows.length == 1) {
+                      selectedRows=[]
+                  } else {
+                      selectedRows=[row];
+                  }
 			  }
 
 			  this.setState({'selectedRows': selectedRows});
