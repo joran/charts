@@ -181,36 +181,21 @@
 			  var selectedIdx = node.sectionRowIndex;
               var row = rows[selectedIdx];
 
-              var isMultipleSelectRange = this.props.multipleSelect && event.shiftKey;
               var isMultipleSelect = this.props.multipleSelect && event.ctrlKey;
 
-              if (isAlreadySelected(row)) {
-                  // unselect if already selected
-			      selectedRows = selectedRows.filter(function(alreadySelectedRow){
-			          return alreadySelectedRow != row;
-			      });
-			  } else if(isMultipleSelectRange){
-                  if (selectedRows.length > 0) {
-                      // Select all rows between last selected row and previous
-                      // selected row 
-                      var previousSelectedRow = selectedRows.slice(-1).pop();
-                      var prevRowIdx = rows.indexOf(previousSelectedRow);
-
-		              rows.slice(Math.min(selectedIdx, prevRowIdx), Math.max(selectedIdx, prevRowIdx)+1)
-                          .filter(function(r){return !isAlreadySelected(r);})
-                          .forEach(function(r){selectedRows.push(r)});
-                  } else {
-                      // No row has previously been selected 
-                      console.debug("handleTRClick 3");
-                      selectedRows = [row];
+			  if (isMultipleSelect){
+				  if (isAlreadySelected(row)) {
+                      // unselect if already selected
+			          selectedRows = selectedRows.filter(function(alreadySelectedRow){
+			              return alreadySelectedRow != row;
+			          });
+				  } else { 
+                      selectedRows.push(row);
                   }
-              } else if (isMultipleSelect){
-                  selectedRows.push(row);
 			  } else {
                   selectedRows=[row];
 			  }
 
-              console.debug("handleTRClick", event, event.ctrlKey, selectedRows);
 			  this.setState({'selectedRows': selectedRows});
 		  },
 	      render: function() {
