@@ -65,7 +65,7 @@
 	      {'key':'prop4', 'prop': 'email', 'label': 'Email', 'sortable': 'true', 'visible':true}
 	  ]};
 
-      var users = UsersGenerator.get(5);
+      var users = UsersGenerator.get(1500);
       for(var i = 0; i < users.length; i++){
           var user = users[i];
           var name = user.surname + ", " + user.givenname;
@@ -81,36 +81,6 @@
 	  //------------------------------------------------------------------------
       // Utils
 	  //------------------------------------------------------------------------
-/*
-	  var TDs = function(row, props){
-	          var cells=[];
-	          props.map(function(p, i){
-                  if(p.visible){
-                      cells.push(d.td({key:i}, row[p.prop]));
-                  }
-              });
-              return cells;
-	  };
-
-	  var THs = function(props){
-	          var cells=[];
-	          props.map(function(p, i){
-                  if(p.visible){
-                      cells.push(d.th({key:i}, p.label));
-                  }
-              });
-              return cells;
-	  };
-
-	  var OPTs = function(props){
-	          var opts=[];
-	          props.map(function(p, i){
-                  opts.push(d.option({value:i, key:p.prop }, p.label));
-              });
-              return opts;
-	  };
-*/
-
 	  //------------------------------------------------------------------------
       // Components
 	  //------------------------------------------------------------------------
@@ -143,7 +113,42 @@
 	      )},
 	  });
 
+	  var DataFilter = React.createClass({
+	      getInitialState: function() {
+              return {data:this.props.data, orgData: this.props.data};
+          },
+          onChange : function(event) {
+              var values = event.target.value.split(' ').filter(function(v){ return v.length > 0;});
+              var rows = this.state.orgData;
+
+              var selectedRows = rows.filter(function(r){
+                  var foundPropForAllValues = true;
+                  for(var i = 0 ; i < values.length; i++){
+                      var foundPropContainingValue = false;
+                      var keys = Object.keys(r);
+                      for(var j = 0; j < keys.length; j++){
+                          if(r[keys[j]].toString().containsIgnoreCap(values[i])){
+                               foundPropContainingValue = true;
+                          }
+                      }
+                      // Accumulate if a property is found that contains current value
+                      // All values must be found in any property
+                      foundPropForAllValues = foundPropForAllValues && foundPropContainingValue;
+                  }
+                  return foundPropForAllValues;
+              });
+              this.props.onChange(selectedRows);
+	      },
+	      render: function() {
+              return (
+                  <input type={'text'} onChange={this.onChange}/>
+	      )},
+	  });
+
 	  var Table = React.createClass({
+          componentWillReceiveProps: function(nextProps){
+              this.setState({data: nextProps.data});
+          },
 	      getInitialState: function() {
               var sortBy = this.props.sortBy || this.props.columns[0].prop;
               return {
@@ -232,6 +237,7 @@
                   return row;
               });
 
+
               return (
 	              <table>
                       <thead>
@@ -243,7 +249,7 @@
                                   }
 
                                   return(
-				                      <th className={className} key={'header-' + i} data-prop={c.prop} onClick={me.handleTHClick}>{c.label}</th>
+				                      <th className={className} key={'header-' + c.prop} data-prop={c.prop} onClick={me.handleTHClick}>{c.label}</th>
 						      )}})}
 						  </tr>
                       </thead>
@@ -251,9 +257,9 @@
 					      {data.map(function(row, i){
                               var className = row.isSelected ? 'selected' : '';
                               return (
-	                          <tr className={className} key={'row-' + i} onClick={me.handleTRClick}>
+	                          <tr className={className} key={'row-' + row.uid} onClick={me.handleTRClick}>
 							      {columns.map(function(c, j){if(c.visible){return(
-					                  <td key={'cell-' + i + '-' + j}>{row[c.prop]}</td>
+					                  <td key={'cell-'+row.uid+'-'+c.prop}>{row[c.prop]}</td>
 							      )}})}
                               </tr>
                            );})}
@@ -291,12 +297,17 @@
 				  me.setState({'columns':columns});
 			  };
 
+		      var onDataChange = function(selRows){
+                  me.setState({'data':selRows});
+			  };
+
               return (
 	             <div>
                      <h1>{this.props.header}</h1>
 	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
-	                 <Table data={data}
-                            columns={columns}
+                     <DataFilter data={this.state.data} onChange={onDataChange}/>
+	                 <Table data={this.state.data}
+                            columns={this.state.columns}
                             sortBy={sortBy}
                             onRowsSelect={onRowsSelect}
                             multipleSelect={multipleSelect} />
