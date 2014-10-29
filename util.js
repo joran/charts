@@ -183,7 +183,7 @@ if (!String.prototype.containsIgnoreCap) {
     if (typeof startIdx !== 'number') {
       throw new TypeError('startIdx must be a number');
     }
-	return (this.toLowerCase().indexOf(searchString.toLowerCase(), startIdx) > 0);
+	return (this.toLowerCase().indexOf(searchString.toLowerCase(), startIdx) >= 0);
   };
 }
 
