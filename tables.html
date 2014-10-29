@@ -121,21 +121,24 @@
               var searchTerms = event.target.value.split(' ').filter(function(v){ return v.length > 0;});
               var rows = this.state.orgData;
 			  var columns = this.props.columns;
+              var isSearchable = function(c){return c.searchable};
+              var getPropName = function(c){ return c.prop};
 
-              var selectedRows = rows.filter(function(r){
+              var selectedRows = rows.filter(function(row){
                   var foundPropForAllSearchTerms = true;
                   for(var i = 0 ; i < searchTerms.length; i++){
                       var searchTerm = searchTerms[i];
                       var foundPropContainingSearchTerm = false;
-                      var keys = columns.filter(function(c){return c.searchable})
-                                        .map(function(c){ return c.prop});
-                      for(var j = 0; j < keys.length; j++){
-                          var key = keys[j];
-                          var rowValue = r[key].toString();
-                          if(rowValue.containsIgnoreCap(searchTerm)){
+                      var propNames = columns.filter(isSearchable).map(getPropName);
+
+                      for(var j = 0; j < propNames.length; j++){
+                          var propName = propNames[j];
+                          var propValue = row[propName].toString();
+                          if(propValue.containsIgnoreCap(searchTerm)){
                                foundPropContainingSearchTerm = true;
                           }
                       }
+
                       // Accumulate if a property is found that contains current serch term
                       // All search terms must be found in any property
                       foundPropForAllSearchTerms = foundPropForAllSearchTerms && foundPropContainingSearchTerm;
