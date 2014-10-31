@@ -120,7 +120,7 @@
               return (
 	             <div>
                      <h1>{this.props.header}</h1>
-	                 <ColumnFilter columns={columns} onSelect={onColumnsChange}/>
+	                 <Select options={columns} onSelect={onColumnsChange}/>
                      <DataFilter data={data} columns={columns} onChange={onDataChange}/>
 	                 <Table data={this.state.data}
                             columns={columns}

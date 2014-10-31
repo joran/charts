@@ -1,28 +1,28 @@
 /** @jsx React.DOM */
-	  var ColumnFilter = React.createClass({
+
+	  var Select = React.createClass({
 	      getInitialState: function() {
-              return {columns: this.props.columns};
+              return {options: this.props.options};
           },
           onSelect : function(event) {
-	          var columns = this.state.columns;
-	          var options = event.target.options;
+	          var options = this.state.options;
               var selOpts = event.target.selectedOptions;
 	          var selectedValues = [];
 
 	          for(var i = 0; i < selOpts.length; i++){
-			      selectedValues.push(selOpts[i].value);
+		      selectedValues.push(selOpts[i].value);
               }
 
               this.props.onSelect(selectedValues);
 	      },
 	      render: function() {
-              var columns = this.state.columns;
-			  var selectedValues = columns.filter(function(c){return c.visible}).map(function(c){return c.prop});
+              var options = this.state.options;
+			  var selectedValues = options.filter(function(o){return o.visible}).map(function(o){return o.prop});
 
               return (
                   <select value={selectedValues} multiple={true} onChange={this.onSelect}>
-					{columns.map(function(c, i){ return(
-					    <option value={c.prop} key={c.prop}>{c.label}</option>
+					{options.map(function(o){ return(
+					    <option value={o.prop} key={o.prop}>{o.label}</option>
                     )})}
                   </select>
 	      )},
