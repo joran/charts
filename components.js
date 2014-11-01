@@ -1,8 +1,17 @@
 /** @jsx React.DOM */
 
+      /**
+       * Generic high level select component
+       * Properties:
+       *  - options, an array of objects {prop, label, visible}.
+       *  - onSelect, a callback that takes an array of selected objects.  
+       */
 	  var Select = React.createClass({
 	      getInitialState: function() {
               return {options: this.props.options};
+          },
+		  componentWillReceiveProps: function(nextProps) {
+		      this.setState({options: nextProps.options});
           },
           onSelect : function(event) {
 	          var options = this.state.options;
@@ -10,21 +19,50 @@
 	          var selectedValues = [];
 
 	          for(var i = 0; i < selOpts.length; i++){
-		      selectedValues.push(selOpts[i].value);
+		          selectedValues.push(selOpts[i].value);
               }
 
-              this.props.onSelect(selectedValues);
+              var selectedOptions = options.filter(function(o){return selectedValues.indexOf(o.value) >= 0});
+
+              this.props.onSelect(selectedOptions);
 	      },
 	      render: function() {
               var options = this.state.options;
-			  var selectedValues = options.filter(function(o){return o.visible}).map(function(o){return o.prop});
+			  var selectedValues = options.filter(function(o){return o.selected}).map(function(o){return o.value});
 
               return (
                   <select value={selectedValues} multiple={true} onChange={this.onSelect}>
 					{options.map(function(o){ return(
-					    <option value={o.prop} key={o.prop}>{o.label}</option>
+					    <option value={o.value} key={o.value}>{o.label}</option>
                     )})}
                   </select>
+	      )},
+	  });
+
+      /**
+       * An extension of the Select component that handles the selection of
+       * objects representing a Table column
+       * Properties:
+       *  - columns, an array of table column configuration objects.
+       *  - onSelect, a callback that takes an array of selected columns.
+       */
+	  var SelectTableColumns = React.createClass({
+	      getInitialState: function() {
+              return {columns: this.props.columns};
+          },
+		  componentWillReceiveProps: function(nextProps) {
+              this.setState({columns:nextProps.columns});
+          },
+          onSelect : function(selectedObjects) {
+		      var selectedValues = selectedObjects.map(function(obj){return obj.value});
+              var selectedColumns = this.state.columns.filter(function(c){return selectedValues.indexOf(c.prop) >= 0});
+              this.props.onSelect(selectedColumns);
+	      },
+	      render: function() {
+              var columns = this.state.columns;
+			  var options = columns.map(function(c){return {value:c.prop, label:c.label, selected:c.visible}});
+              return (
+                  <Select options={options} onSelect={this.onSelect}/>
 	      )},
 	  });
 

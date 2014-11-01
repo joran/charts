@@ -91,9 +91,9 @@
           },
 
 	      render: function() {
-              var isSelected = function(col, selectedValues){
-                  for(var i = 0; i < selectedValues.length; i++){
-                      if(col.prop == selectedValues[i]){
+              var isSelected = function(col, selectedColumns){
+                  for(var i = 0; i < selectedColumns.length; i++){
+                      if(col.prop === selectedColumns[i].prop){
                           return true;
                       }
                   }
@@ -106,9 +106,9 @@
               var multipleSelect = this.props.multipleSelect||false;
               var onRowsSelect = this.props.onRowsSelect;
 
-		      var onColumnsChange = function(selectedValues){
+		      var onColumnsChange = function(selectedColumns){
 				  columns.map(function(c){
-                      c.visible = isSelected(c, selectedValues);
+                      c.visible = isSelected(c, selectedColumns);
                   });
 				  me.setState({'columns':columns});
 			  };
@@ -120,7 +120,7 @@
               return (
 	             <div>
                      <h1>{this.props.header}</h1>
-	                 <Select options={columns} onSelect={onColumnsChange}/>
+	                 <SelectTableColumns columns={columns} onSelect={onColumnsChange}/>
                      <DataFilter data={data} columns={columns} onChange={onDataChange}/>
 	                 <Table data={this.state.data}
                             columns={columns}
