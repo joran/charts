@@ -1,5 +1,9 @@
 /** @jsx React.DOM */
 
+      //------------------------------------------------------------------------
+      // "Generic" components
+      //------------------------------------------------------------------------
+
       /**
        * Generic high level select component
        * Properties:
@@ -39,6 +43,27 @@
 	      )},
 	  });
 
+
+      /**
+       * Generic high level component for words input 
+       * Properties:
+       *  - onChange, a callback that takes an array of words.  
+       */
+	  var WordsInput = React.createClass({
+          onChange : function(event) {
+              var searchTerms = event.target.value.split(' ').filter(function(v){ return v.length > 0;});
+              this.props.onChange(searchTerms);
+	      },
+	      render: function() {
+              return (
+                  <input type={'text'} onChange={this.onChange}/>
+	      )},
+	  });
+
+      //------------------------------------------------------------------------
+      // Application components
+      //------------------------------------------------------------------------
+
       /**
        * An extension of the Select component that handles the selection of
        * objects representing a Table column
@@ -46,7 +71,7 @@
        *  - columns, an array of table column configuration objects.
        *  - onSelect, a callback that takes an array of selected columns.
        */
-	  var SelectTableColumns = React.createClass({
+	  var SelectTableColumnsInput = React.createClass({
 	      getInitialState: function() {
               return {columns: this.props.columns};
           },
@@ -66,12 +91,11 @@
 	      )},
 	  });
 
-	  var DataFilter = React.createClass({
+	  var SelectTableRowsInput = React.createClass({
 	      getInitialState: function() {
               return {data:this.props.data, orgData: this.props.data};
           },
-          onChange : function(event) {
-              var searchTerms = event.target.value.split(' ').filter(function(v){ return v.length > 0;});
+          onChange : function(searchTerms) {
               var rows = this.state.orgData;
 			  var columns = this.props.columns;
               var isSearchable = function(c){return c.searchable};
@@ -102,7 +126,7 @@
 	      },
 	      render: function() {
               return (
-                  <input type={'text'} onChange={this.onChange}/>
+                  <WordsInput onChange={this.onChange}/>
 	      )},
 	  });
 
