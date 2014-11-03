@@ -11,14 +11,8 @@
        *  - onSelect, a callback that takes an array of selected objects.  
        */
 	  var Select = React.createClass({
-	      getInitialState: function() {
-              return {options: this.props.options};
-          },
-		  componentWillReceiveProps: function(nextProps) {
-		      this.setState({options: nextProps.options});
-          },
           onSelect : function(event) {
-	          var options = this.state.options;
+	          var options = this.props.options;
               var selOpts = event.target.selectedOptions;
 	          var selectedValues = [];
 
@@ -31,7 +25,7 @@
               this.props.onSelect(selectedOptions);
 	      },
 	      render: function() {
-              var options = this.state.options;
+              var options = this.props.options;
 			  var selectedValues = options.filter(function(o){return o.selected}).map(function(o){return o.value});
 
               return (
@@ -72,19 +66,14 @@
        *  - onSelect, a callback that takes an array of selected columns.
        */
 	  var SelectTableColumnsInput = React.createClass({
-	      getInitialState: function() {
-              return {columns: this.props.columns};
-          },
-		  componentWillReceiveProps: function(nextProps) {
-              this.setState({columns:nextProps.columns});
-          },
           onSelect : function(selectedObjects) {
+              var columns = this.props.columns;
 		      var selectedValues = selectedObjects.map(function(obj){return obj.value});
-              var selectedColumns = this.state.columns.filter(function(c){return selectedValues.indexOf(c.prop) >= 0});
+              var selectedColumns = columns.filter(function(c){return selectedValues.indexOf(c.prop) >= 0});
               this.props.onSelect(selectedColumns);
 	      },
 	      render: function() {
-              var columns = this.state.columns;
+              var columns = this.props.columns;
 			  var options = columns.map(function(c){return {value:c.prop, label:c.label, selected:c.visible}});
               return (
                   <Select options={options} onSelect={this.onSelect}/>
@@ -93,7 +82,7 @@
 
 	  var SelectTableRowsInput = React.createClass({
 	      getInitialState: function() {
-              return {data:this.props.data, orgData: this.props.data};
+              return {orgData: this.props.data};
           },
           onChange : function(searchTerms) {
               var rows = this.state.orgData;
@@ -131,14 +120,9 @@
 	  });
 
 	  var Table = React.createClass({
-          componentWillReceiveProps: function(nextProps){
-              this.setState({data: nextProps.data});
-          },
 	      getInitialState: function() {
               var sortBy = this.props.sortBy || this.props.columns[0].prop;
               return {
-				  data: this.props.data,
-				  columns: this.props.columns,
 				  sortBy: sortBy,
 				  direction:'asc',
                   selectedRows: []
@@ -155,7 +139,7 @@
               this.setState({sortBy: selectedProp, direction:direction});
 		  },
 	      handleTRClick : function(event){
-              var rows = this.state.data;
+              var rows = this.props.data;
               var selectedRows = this.state.selectedRows;
 
               var isAlreadySelected = function(row){
@@ -198,12 +182,12 @@
 		  },
 	      render: function() {
               var me = this;
-              var columns = this.state.columns;
+              var columns = this.props.columns;
               var sortBy = this.state.sortBy;
               var direction = this.state.direction;
               var selectedRows = this.state.selectedRows;
 
-              var data = this.state.data.sort(function(a,b){
+              var data = this.props.data.sort(function(a,b){
                   var aValue = a[sortBy] || "";
                   var bValue = b[sortBy] || "";
                   if(direction == 'asc'){
@@ -221,7 +205,6 @@
                   }
                   return row;
               });
-
 
               return (
 	              <table>
