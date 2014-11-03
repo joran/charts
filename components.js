@@ -207,9 +207,9 @@
                   var aValue = a[sortBy] || "";
                   var bValue = b[sortBy] || "";
                   if(direction == 'asc'){
-                      return aValue.localeCompare(bValue);
+                      return aValue.localeCompare(bValue, "sv");
                   } else {
-                      return bValue.localeCompare(aValue);
+                      return bValue.localeCompare(aValue, "sv");
                   }
               }).map(function(row){
                   row.isSelected = false;
