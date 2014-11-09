@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Test of Table component </title>
+	<script src="util.js"></script>
+    <style>
+        body{
+	        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+		    color: #212121;
+            width: 550px;
+            margin: 0 auto;
+        }
+	    table{
+	        border-collapse: collapse;
+            margin-top: 10px;
+	    }
+	    td, th{
+            border: 1px solid #0288d1;
+            padding: 3px 7px 2px 7px;
+	    }
+        th{
+            font-size: 1.1em;
+            text-align: left;
+            padding-top: 5px;
+            padding-bottom: 4px;
+            background-color: #03a9f4;
+            color: #ffffff;
+        }
+        th.sort-asc:after{
+		    content: " \25b4";
+        }
+        th.sort-desc:after{
+            content: " \25be";
+        }
+        tr:nth-child(even){
+            background-color: #b3e5fc;
+        }
+        tr:nth-child(odd){
+            background-color: #ffffff;
+        }
+        tr:hover{
+            background-color: #81d4fa;
+        }
+        tr.selected{
+            background-color: #4fc3f7;
+        }
+        div.debug {
+		    float:right;
+		}
+	</style>
+  </head>
+  <body>
+    <section id="content">Loading, please wait.</section>
+    <footer>
+	  <p>Created by Jöran Stark</p>
+    </footer>
+	<script src="js/bundle.js"></script>
+  </body>
+</html>
